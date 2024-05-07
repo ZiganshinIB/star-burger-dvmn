@@ -59,7 +59,7 @@ class CheckoutModal extends Component{
   render(){
     return (
       <Modal show={this.props.checkoutModalActive} onHide={this.props.handleCheckoutModalClose}>
-        <form onSubmit={event=>this.submit(event)} method="post" action="/api/order/" >
+        <form onSubmit={event=>this.submit(event)} action="/api/order/" >
           <Modal.Header closeButton>
             <h2>
               <center>

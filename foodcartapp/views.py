@@ -3,15 +3,20 @@ import json
 from django.http import JsonResponse
 from django.templatetags.static import static
 
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 
 from .models import Product
 from .models import Order
 from .models import OrderDetails
 
 
+@api_view(['GET'])
 def banners_list_api(request):
     # FIXME move data to db?
-    return JsonResponse([
+    return Response([
         {
             'title': 'Burger',
             'src': static('burger.jpg'),
@@ -27,12 +32,10 @@ def banners_list_api(request):
             'src': static('tasty.jpg'),
             'text': 'Food is incomplete without a tasty dessert',
         }
-    ], safe=False, json_dumps_params={
-        'ensure_ascii': False,
-        'indent': 4,
-    })
+    ])
 
 
+@api_view(['GET'])
 def product_list_api(request):
     products = Product.objects.select_related('category').available()
 
@@ -55,15 +58,17 @@ def product_list_api(request):
             }
         }
         dumped_products.append(dumped_product)
-    return JsonResponse(dumped_products, safe=False, json_dumps_params={
-        'ensure_ascii': False,
-        'indent': 4,
-    })
+    return Response(dumped_products)
 
 
+@api_view(['POST'])
 def register_order(request):
     try:
-        raw_order = json.loads(request.body.decode())
+        raw_order = request.data
+        if not(isinstance( raw_order.get('products'), list)):
+            return Response({'error': 'products key not present or not a list'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        elif len(raw_order['products']) == 0:
+            return Response({'error': 'products list is empty'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         order = Order.objects.create(
             user_firstname=raw_order['firstname'],
             user_lastname=raw_order['lastname'],
@@ -77,9 +82,10 @@ def register_order(request):
                 product=product,
                 quantity=raw_product['quantity'],
             )
-        return JsonResponse(raw_order)
+        return Response(raw_order)
     except ValueError:
-        return JsonResponse({'status': 'error'}, status=400)
+        print('error')
+        return Response({'error': 'ValueError'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
     # TODO это лишь заглушка
 
