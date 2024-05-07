@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Restaurant(models.Model):
@@ -121,3 +122,81 @@ class RestaurantMenuItem(models.Model):
 
     def __str__(self):
         return f"{self.restaurant.name} - {self.product.name}"
+
+
+class OrderQuerySet(models.QuerySet):
+    def active(self):
+        return self.exclude(status=Order.OrderStatus.CANCELLED)
+
+
+class Order(models.Model):
+    class OrderStatus(models.TextChoices):
+        CREATED = 'CREATED', 'Создан'
+        PAID = 'PAID', 'Оплачен'
+        DONE = 'DONE', 'Выполнен'
+        CANCELLED = 'CANCELLED', 'Отменен'
+
+    user_firstname = models.CharField(
+        verbose_name='имя',
+        max_length=50,
+    )
+    user_lastname = models.CharField(
+        verbose_name='фамилия',
+        max_length=50,
+    )
+    phonenumber = PhoneNumberField(
+        verbose_name='телефон',
+        db_index=True,
+    )
+    address = models.CharField(
+        verbose_name='адрес',
+        max_length=100,
+    )
+    created_at = models.DateTimeField(
+        verbose_name='создан',
+        auto_now_add=True,
+    )
+    updated_at = models.DateTimeField(
+        verbose_name='обновлен',
+        auto_now=True,
+    )
+    status = models.CharField(
+        verbose_name='статус',
+        choices=OrderStatus.choices,
+        db_index=True,
+        default=OrderStatus.CREATED,
+        max_length=10,
+    )
+    objects = OrderQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = 'заказ'
+        verbose_name_plural = 'заказы'
+        ordering = ['-created_at']
+
+
+    def __str__(self):
+        return f"{self.user_firstname} {self.user_lastname}"
+
+
+class OrderDetails(models.Model):
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='products',
+        verbose_name='Заказ',
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='orders',
+        verbose_name='Продукт',
+    )
+    quantity = models.PositiveIntegerField(
+        verbose_name='Количество',
+        validators=[MinValueValidator(1)]
+    )
+
+    class Meta:
+        verbose_name = 'позиция заказа'
+        verbose_name_plural = 'позиции заказа'
