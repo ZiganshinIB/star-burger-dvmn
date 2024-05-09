@@ -136,11 +136,11 @@ class Order(models.Model):
         DONE = 'DONE', 'Выполнен'
         CANCELLED = 'CANCELLED', 'Отменен'
 
-    user_firstname = models.CharField(
+    firstname = models.CharField(
         verbose_name='имя',
         max_length=50,
     )
-    user_lastname = models.CharField(
+    lastname = models.CharField(
         verbose_name='фамилия',
         max_length=50,
     )
@@ -177,7 +177,7 @@ class Order(models.Model):
 
 
     def __str__(self):
-        return f"{self.user_firstname} {self.user_lastname}"
+        return f"{self.firstname} {self.lastname}"
 
 
 class OrderDetails(models.Model):
