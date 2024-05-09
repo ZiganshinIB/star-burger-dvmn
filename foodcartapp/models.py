@@ -168,19 +168,20 @@ class Order(models.Model):
         default=OrderStatus.CREATED,
         max_length=10,
     )
+
+    total_price = models.DecimalField(
+        verbose_name='Стоимость заказа',
+        max_digits=8,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        default=0
+    )
     objects = OrderQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'заказ'
         verbose_name_plural = 'заказы'
         ordering = ['-created_at']
-
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-        self.total_price = sum(
-            [item.product.price * item.quantity for item in self.products.all()]
-        )
-        super().save(force_insert, force_update, using, update_fields)
 
     def get_total_price(self):
         return sum([item.product.price * item.quantity for item in self.products.all()])
