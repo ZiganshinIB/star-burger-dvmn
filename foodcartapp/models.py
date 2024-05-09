@@ -1,5 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.db.models import Q
+from django.utils.translation import gettext_lazy
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -126,15 +128,17 @@ class RestaurantMenuItem(models.Model):
 
 class OrderQuerySet(models.QuerySet):
     def active(self):
-        return self.exclude(status=Order.OrderStatus.CANCELLED)
+        return self.exclude(Q(status='CANCELLED') | Q(status='DONE'))
 
 
 class Order(models.Model):
-    class OrderStatus(models.TextChoices):
-        CREATED = 'CREATED', 'Создан'
-        PAID = 'PAID', 'Оплачен'
-        DONE = 'DONE', 'Выполнен'
-        CANCELLED = 'CANCELLED', 'Отменен'
+
+    OrderStatus = [
+            ('CREATED', 'Создан'),
+            ('PAID', 'Оплачен'),
+            ('DONE', 'Выполнен'),
+            ('CANCELLED', 'Отменен'),
+        ]
 
     firstname = models.CharField(
         verbose_name='имя',
@@ -163,10 +167,11 @@ class Order(models.Model):
     )
     status = models.CharField(
         verbose_name='статус',
-        choices=OrderStatus.choices,
+        choices=OrderStatus,
         db_index=True,
-        default=OrderStatus.CREATED,
+        default='CREATED',
         max_length=10,
+
     )
 
     total_price = models.DecimalField(
