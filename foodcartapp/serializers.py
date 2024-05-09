@@ -18,7 +18,7 @@ class OrderSerializer(serializers.ModelSerializer):
     products = OrderDetailsSerializer(many=True)
     class Meta:
         model = Order
-        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+        fields = ['id','firstname', 'lastname', 'phonenumber', 'address', 'products']
 
     def is_valid(self, raise_exception=False):
         super().is_valid(raise_exception=raise_exception)

@@ -64,11 +64,9 @@ def product_list_api(request):
 @api_view(['POST'])
 def register_order(request):
     try:
-
         order = OrderSerializer(data=request.data)
         order.is_valid(raise_exception=True)
         order.save()
-
         return Response(order.data, status=status.HTTP_201_CREATED)
     except django.db.utils.IntegrityError as e:
         return Response({'error': 'ValueError'}, status=status.HTTP_406_NOT_ACCEPTABLE)
