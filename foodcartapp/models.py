@@ -175,6 +175,15 @@ class Order(models.Model):
         verbose_name_plural = 'заказы'
         ordering = ['-created_at']
 
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        self.total_price = sum(
+            [item.product.price * item.quantity for item in self.products.all()]
+        )
+        super().save(force_insert, force_update, using, update_fields)
+
+    def get_total_price(self):
+        return sum([item.product.price * item.quantity for item in self.products.all()])
 
     def __str__(self):
         return f"{self.firstname} {self.lastname}"
