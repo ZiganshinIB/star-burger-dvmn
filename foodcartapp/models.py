@@ -157,6 +157,10 @@ class Order(models.Model):
         verbose_name='адрес',
         max_length=100,
     )
+    comment = models.TextField(
+        verbose_name='Комментарий',
+        blank=True,
+    )
     created_at = models.DateTimeField(
         verbose_name='создан',
         auto_now_add=True,
