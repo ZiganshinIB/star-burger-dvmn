@@ -134,8 +134,9 @@ class OrderQuerySet(models.QuerySet):
 class Order(models.Model):
 
     OrderStatus = [
-            ('CREATED', 'Создан'),
-            ('PAID', 'Оплачен'),
+            ('CREATED', 'Необработан'),
+            ('IN_PROG', 'В обработке'),
+            ('READY', 'Готов к выдаче'),
             ('DONE', 'Выполнен'),
             ('CANCELLED', 'Отменен'),
         ]
@@ -161,14 +162,6 @@ class Order(models.Model):
         verbose_name='Комментарий',
         blank=True,
     )
-    created_at = models.DateTimeField(
-        verbose_name='создан',
-        auto_now_add=True,
-    )
-    updated_at = models.DateTimeField(
-        verbose_name='обновлен',
-        auto_now=True,
-    )
     status = models.CharField(
         verbose_name='статус',
         choices=OrderStatus,
@@ -177,6 +170,23 @@ class Order(models.Model):
         max_length=10,
 
     )
+    registrated_at = models.DateTimeField(
+        verbose_name='Cоздан',
+        auto_now_add=True,
+    )
+    called_at = models.DateTimeField(
+        verbose_name='Дата звонка',
+        null=True,
+    )
+    delivered_at = models.DateTimeField(
+        verbose_name='Дата доставки',
+        null=True,
+    )
+    updated_at = models.DateTimeField(
+        verbose_name='обновлен',
+        auto_now=True,
+    )
+
 
     total_price = models.DecimalField(
         verbose_name='Стоимость заказа',
@@ -190,7 +200,7 @@ class Order(models.Model):
     class Meta:
         verbose_name = 'заказ'
         verbose_name_plural = 'заказы'
-        ordering = ['-created_at']
+        ordering = ['status', '-registrated_at']
 
     def get_total_price(self):
         return sum([item.product.price * item.quantity for item in self.products.all()])
