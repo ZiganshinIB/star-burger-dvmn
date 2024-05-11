@@ -15,24 +15,50 @@
     <tr>
       <th>ID заказа</th>
       <th>Статус</th>
+      <th>Способ оплаты</th>
       <th>Стоимость заказа</th>
       <th>Клиент</th>
       <th>Телефон</th>
       <th>Адрес доставки</th>
+      <th>Комментарий</th>
+      <th>Рестораны</th>
       <th>Ссылка на редактирование</th>
     </tr>
 
-    {% for order in order_items %}
+    {% for order, restaurants in order_items %}
       <tr>
         <td>{{order.id}}</td>
         <td>{{order.get_status_display }}</td>
+        <td>{{order.get_payment_method_display }}</td>
         <td>{{ order.total_price|floatformat:2 }}$</td>
         <td>{{order.firstname}} {{order.lastname}}</td>
         <td>{{order.phonenumber}}</td>
         <td>{{order.address}}</td>
+        <td>{{order.comment}}</td>
+        <td>
+          {% if order.restaurant %}
+            {{order.restaurant.name}}
+          {% else %}
+
+            <details>
+              {% if restaurants %}
+                <summary>Рестораны</summary>
+              {% else %}
+                <summary>Нет ресторанов</summary>
+              {% endif %}
+            <ul>
+            {% for restaurant in restaurants %}
+              <li>{{ restaurant.restaurant__name }}</li>
+
+              {% endfor %}
+            </ul>
+            </details>
+          {% endif %}
+        </td>
         <td><a href="{% url 'admin:foodcartapp_order_change' order.id %}?next={{request.path}}">Редактировать</a></td>
       </tr>
     {% endfor %}
+
    </table>
   </div>
 {% endblock %}

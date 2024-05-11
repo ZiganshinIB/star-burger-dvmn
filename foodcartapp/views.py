@@ -71,5 +71,4 @@ def register_order(request):
     except django.db.utils.IntegrityError as e:
         return Response({'error': 'ValueError'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
-    # TODO это лишь заглушка
 

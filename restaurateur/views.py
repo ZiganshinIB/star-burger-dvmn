@@ -3,14 +3,14 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Count
 from django.db.models.functions import Round
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 
-from foodcartapp.models import Product, Restaurant, OrderDetails, Order
+from foodcartapp.models import Product, Restaurant, OrderDetails, Order, RestaurantMenuItem
 
 
 class Login(forms.Form):
@@ -94,10 +94,18 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    order_items = []
 
-    orders = Order.objects.all()
-    
+    #
+    # all_products_in_orders = OrderDetails.objects.all()
+    for order_instance in Order.objects.all():
+        order_products = order_instance.products.values_list('product', flat=True)
+        restaurants_preparing_all_dishes = RestaurantMenuItem.objects.select_related('restaurant').values('restaurant__name').filter(
+            product__in=order_products
+        ).annotate(restaurants_count=Count('restaurant_id')).filter(restaurants_count=len(order_products))
+        order_items.append((order_instance, restaurants_preparing_all_dishes))
+
     return render(request, template_name='order_items.html', context={
-        'order_items': orders,
+        'order_items': order_items,
         # TODO заглушка для нереализованного функционала
     })

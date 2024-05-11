@@ -128,18 +128,25 @@ class RestaurantMenuItem(models.Model):
 
 class OrderQuerySet(models.QuerySet):
     def active(self):
-        return self.exclude(Q(status='CANCELLED') | Q(status='DONE'))
+        return self.filter(status=1)
 
 
 class Order(models.Model):
 
     OrderStatus = [
-            ('CREATED', 'Необработан'),
-            ('IN_PROG', 'В обработке'),
-            ('READY', 'Готов к выдаче'),
-            ('DONE', 'Выполнен'),
-            ('CANCELLED', 'Отменен'),
+            ('1', 'Необработан'),
+            ('2', 'В обработке'),
+            ('3', 'Готов к выдаче'),
+            ('4', 'Выполнен'),
+            ('5', 'Отменен'),
         ]
+    PaymentMethod = [
+        ('NONE', "Не выбрано"),
+        ('CASH', 'Наличные'),
+        ('CARD', 'Карта'),
+        ('ELECT', 'Электронно'),
+
+    ]
 
     firstname = models.CharField(
         verbose_name='имя',
@@ -166,10 +173,16 @@ class Order(models.Model):
         verbose_name='статус',
         choices=OrderStatus,
         db_index=True,
-        default='CREATED',
-        max_length=10,
-
+        default=1,
+        max_length=1,
     )
+    payment_method = models.CharField(
+        verbose_name='Способ оплаты',
+        choices=PaymentMethod,
+        max_length=10,
+        default='NONE',
+    )
+
     registrated_at = models.DateTimeField(
         verbose_name='Cоздан',
         auto_now_add=True,
@@ -177,17 +190,24 @@ class Order(models.Model):
     called_at = models.DateTimeField(
         verbose_name='Дата звонка',
         null=True,
+        blank=True
     )
     delivered_at = models.DateTimeField(
         verbose_name='Дата доставки',
         null=True,
+        blank=True
     )
     updated_at = models.DateTimeField(
         verbose_name='обновлен',
         auto_now=True,
     )
-
-
+    restaurant = models.ForeignKey(
+        Restaurant,
+        verbose_name='ресторан',
+        related_name='orders',
+        null=True,
+        on_delete=models.SET_NULL
+    )
     total_price = models.DecimalField(
         verbose_name='Стоимость заказа',
         max_digits=8,
