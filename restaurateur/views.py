@@ -6,15 +6,13 @@ from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Count
-from django.db.models.functions import Round
 
 
 from geopy import distance
-from foodcartapp.models import Product, Restaurant, OrderDetails, Order, RestaurantMenuItem
+from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
 from mapper.models import Address
 import requests
 from star_burger.settings import YANDEX_API_KEY
-
 
 
 class Login(forms.Form):
@@ -102,9 +100,11 @@ def view_orders(request):
     for order_instance in Order.objects.all():
         try:
             order_products = order_instance.products.values_list('product', flat=True)
-            restaurants_preparing_all_dishes = RestaurantMenuItem.objects.select_related('restaurant').values('restaurant__name', 'restaurant__address').filter(
-                product__in=order_products
-            ).annotate(restaurants_count=Count('restaurant_id')).filter(restaurants_count=len(order_products))
+            restaurants_preparing_all_dishes = (RestaurantMenuItem.objects.select_related('restaurant')
+                                                .values('restaurant__name', 'restaurant__address')
+                                                .filter(product__in=order_products)
+                                                .annotate(restaurants_count=Count('restaurant_id'))
+                                                .filter(restaurants_count=len(order_products)))
 
             for restaurant in restaurants_preparing_all_dishes:
                 coordinates_restaurants = fetch_coordinates(restaurant['restaurant__address'])
