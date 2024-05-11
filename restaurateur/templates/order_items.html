@@ -48,8 +48,7 @@
               {% endif %}
             <ul>
             {% for restaurant in restaurants %}
-              <li>{{ restaurant.restaurant__name }}</li>
-
+              <li>{{ restaurant.restaurant__name }} - {{ restaurant.distances }} км</li>
               {% endfor %}
             </ul>
             </details>

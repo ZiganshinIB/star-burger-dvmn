@@ -1,16 +1,17 @@
 from django import forms
+from django.contrib.auth import authenticate, login
+from django.contrib.auth import views as auth_views
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
-from django.db.models import Sum, F, Count
+from django.db.models import Count
 from django.db.models.functions import Round
 
-from django.contrib.auth import authenticate, login
-from django.contrib.auth import views as auth_views
 
-
+from geopy import distance
 from foodcartapp.models import Product, Restaurant, OrderDetails, Order, RestaurantMenuItem
+from star_burger.settings import YANDEX_API_KEY
 
 
 class Login(forms.Form):
@@ -99,13 +100,40 @@ def view_orders(request):
     #
     # all_products_in_orders = OrderDetails.objects.all()
     for order_instance in Order.objects.all():
-        order_products = order_instance.products.values_list('product', flat=True)
-        restaurants_preparing_all_dishes = RestaurantMenuItem.objects.select_related('restaurant').values('restaurant__name').filter(
-            product__in=order_products
-        ).annotate(restaurants_count=Count('restaurant_id')).filter(restaurants_count=len(order_products))
-        order_items.append((order_instance, restaurants_preparing_all_dishes))
+        try:
+            order_products = order_instance.products.values_list('product', flat=True)
+            restaurants_preparing_all_dishes = RestaurantMenuItem.objects.select_related('restaurant').values('restaurant__name', 'restaurant__address').filter(
+                product__in=order_products
+            ).annotate(restaurants_count=Count('restaurant_id')).filter(restaurants_count=len(order_products))
 
+            for restaurant in restaurants_preparing_all_dishes:
+                coordinates_restaurants = fetch_coordinates(restaurant['restaurant__address'])
+                coordinates_order = fetch_coordinates(order_instance.address)
+                restaurant["distances"] = round(distance.distance(coordinates_restaurants, coordinates_order).km, 3)
+            order_items.append((order_instance, sorted(restaurants_preparing_all_dishes, key=lambda x: x["distances"])))
+        except ValueError as e:
+            print(e)
+            order_items.append((order_instance, None))
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,
         # TODO заглушка для нереализованного функционала
     })
+
+
+def fetch_coordinates(address):
+    import requests
+    base_url = "https://geocode-maps.yandex.ru/1.x"
+    response = requests.get(base_url, params={
+        "geocode": address,
+        "apikey": YANDEX_API_KEY,
+        "format": "json",
+    })
+    response.raise_for_status()
+    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
+
+    if not found_places:
+        raise ValueError({f"{address}": "No place found"},)
+
+    most_relevant = found_places[0]
+    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+    return lat, lon
