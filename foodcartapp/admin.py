@@ -125,7 +125,7 @@ class OrderAdmin(admin.ModelAdmin):
         OrderDetailsInline
     ]
     list_filter = [
-        'registrated_at',
+        'registered_at',
         'status',
     ]
 

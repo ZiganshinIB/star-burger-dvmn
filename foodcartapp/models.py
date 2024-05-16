@@ -183,7 +183,7 @@ class Order(models.Model):
         default='NONE',
     )
 
-    registrated_at = models.DateTimeField(
+    registered_at = models.DateTimeField(
         verbose_name='Cоздан',
         auto_now_add=True,
     )
@@ -220,7 +220,7 @@ class Order(models.Model):
     class Meta:
         verbose_name = 'заказ'
         verbose_name_plural = 'заказы'
-        ordering = ['status', '-registrated_at']
+        ordering = ['status', '-registered_at']
 
     def get_total_price(self):
         return sum([item.product.price * item.quantity for item in self.products.all()])
