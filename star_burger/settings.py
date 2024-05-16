@@ -9,8 +9,6 @@ env = Env()
 env.read_env()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', False)
@@ -114,7 +112,15 @@ USE_L10N = True
 
 USE_TZ = True
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "assets"),
+    os.path.join(BASE_DIR, "bundles"),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'statics')
+print(STATIC_ROOT)
+
 STATIC_URL = '/static/'
+
 PHONENUMBER_DEFAULT_REGION = 'RU'
 PHONENUMBER_DEFAULT_FORMAT = 'NATIONAL'
 
@@ -123,9 +129,6 @@ INTERNAL_IPS = [
 ]
 
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "assets"),
-    os.path.join(BASE_DIR, "bundles"),
-]
+
 
 YANDEX_API_KEY = env('YANDEX_API_KEY')

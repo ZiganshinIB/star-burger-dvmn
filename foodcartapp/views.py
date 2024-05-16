@@ -1,4 +1,5 @@
 import django.db.utils
+from django.db import transaction
 from django.templatetags.static import static
 
 
@@ -62,13 +63,12 @@ def product_list_api(request):
 
 
 @api_view(['POST'])
+@transaction.atomic
 def register_order(request):
-    try:
-        order = OrderSerializer(data=request.data)
-        order.is_valid(raise_exception=True)
-        order.save()
-        return Response(order.data, status=status.HTTP_201_CREATED)
-    except django.db.utils.IntegrityError as e:
-        return Response({'error': 'ValueError'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+    order = OrderSerializer(data=request.data)
+    order.is_valid(raise_exception=True)
+    order.create(order.validated_data)
+    return Response(order.data, status=status.HTTP_201_CREATED)
+
 
 
