@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
-from django.db.models import Q
+from django.db.models import Sum
 from django.utils.translation import gettext_lazy
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -223,7 +223,7 @@ class Order(models.Model):
         ordering = ['status', '-registered_at']
 
     def get_total_price(self):
-        return sum([item.product.price * item.quantity for item in self.products.all()])
+        return self.objects.annotate(total_price_=Sum("products__product__price")).get(id=self.id).total_price_
 
     def __str__(self):
         return f"{self.firstname} {self.lastname}"
@@ -246,6 +246,9 @@ class OrderDetails(models.Model):
         verbose_name='Количество',
         validators=[MinValueValidator(1)]
     )
+
+    def get_price(self):
+        return self.product.price * self.quantity
 
     class Meta:
         verbose_name = 'позиция заказа'
