@@ -21,16 +21,6 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['id','firstname', 'lastname', 'phonenumber', 'address', 'products', 'total_price']
 
-    def is_valid(self, raise_exception=False):
-        super().is_valid(raise_exception=raise_exception)
-        products = self.validated_data.get('products')
-        if not isinstance(products, list):
-            self._errors['products'] = 'Поле продуктов должно быть списком'
-            raise ValidationError(self._errors)
-        if not products:
-            self._errors['products'] = 'Поле продуктов не может быть пустым'
-            raise ValidationError(self._errors)
-
     def create(self, validated_data):
         products = validated_data.pop('products')
 
