@@ -6,6 +6,7 @@ from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Count
+from requests.exceptions import HTTPError
 
 
 from geopy import distance
@@ -109,9 +110,11 @@ def view_orders(request):
                 coordinates_order = fetch_coordinates(order_instance.address)
                 restaurant["distances"] = round(distance.distance(coordinates_restaurants, coordinates_order).km, 3)
             order_items.append((order_instance, sorted(restaurants_preparing_all_dishes, key=lambda x: x["distances"])))
-        except ValueError as e:
-            print(e)
+        except HTTPError as e:
             order_items.append((order_instance, None))
+        except ValueError as e:
+            order_items.append((order_instance, None))
+
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,
         # TODO заглушка для нереализованного функционала
