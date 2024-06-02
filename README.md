@@ -153,9 +153,18 @@ export ALLOWED_HOSTS=HOST_NAME,HOST_IP,...
 - `DEBUG` — дебаг-режим. Поставьте `False`.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 
-## Deploy
-Деплой рекомендуется проводить в prod-версию и в ОС Linux
-Сделайте файл исполняемым если он не является таковым
+## Deploy на Linux
+
+Деплой рекомендуется проводить в prod-версию
+
+Определите переменные среды, команды:
+```shell
+export ROLLBAR_ACCESS_TOKEN=ROLLBAR_ACCESS_TOKEN
+export ROLLBAR_NAME='Ваше имя'
+```
+- Эти настройки необходимы что бы ввести запись в Rollbar
+
+Сделайте файл `deploy_star_burger.sh` исполняемым если он не является таковым
 ```shell
 chmod ugo+x deploy_star_burger.sh
 ```
