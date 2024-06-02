@@ -1,5 +1,5 @@
 #!/bin/bash
-set -Eeuo pipefail
+set -e
 git pull
 /opt/star-burger-dvmn/.venv/bin/pip install -r requirements.txt
 /opt/star-burger-dvmn/.venv/bin/python manage.py migrate
