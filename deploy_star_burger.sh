@@ -9,3 +9,4 @@ npm ci --dev
 systemctl disable star-burger
 systemctl reload star-burger
 systemctl enable star-burger
+
