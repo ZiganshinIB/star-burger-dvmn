@@ -13,7 +13,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', False)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['89.23.117.19','127.0.0.1', 'localhost'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
@@ -84,7 +84,7 @@ MEDIA_URL = '/media/'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=env.str('POSTGRES_URL', 'postgres://user:password@localhost:5432/db'),
+        default=env.str('DB_URL', 'postgres://user:password@localhost:5432/db'),
         conn_max_age=600,
         conn_health_checks=True,
     )

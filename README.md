@@ -26,7 +26,7 @@ git clone https://github.com/devmanorg/star-burger.git
 
 Перейдите в каталог проекта:
 ```sh
-cd star-burger
+cd star-burger-dvmn
 ```
 
 [Установите Python](https://www.python.org/), если этого ещё не сделали.
@@ -41,12 +41,12 @@ python --version
 
 В каталоге проекта создайте виртуальное окружение:
 ```sh
-python -m venv venv
+python -m venv .venv
 ```
 Активируйте его. На разных операционных системах это делается разными командами:
 
-- Windows: `.\venv\Scripts\activate`
-- MacOS/Linux: `source venv/bin/activate`
+- Windows: `.\.venv\Scripts\activate`
+- MacOS/Linux: `source .venv/bin/activate`
 
 
 Установите зависимости в виртуальное окружение:
@@ -54,14 +54,18 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-Определите переменную окружения `SECRET_KEY`, `YANDEX_API_KEY`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
+Определите переменную окружения `SECRET_KEY`, `YANDEX_API_KEY`, `ROLLBAR_ACCESS_TOKEN`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
+Для dev определите следующие переменные среды
 ```sh
-SECRET_KEY=django-insecure-0if40nf4nf93n4
-YANDEX_API_KEY=API_KEY
-ROLLBAR_ACCESS_TOKEN=ACCESS_TOKEN
+export YANDEX_API_KEY=YOUR_YANDEX_API_KEY
+export ROLLBAR_ACCESS_TOKEN=YOUR_ROLLBAR_ACCESS_TOKEN
+export DB_URL='DB_URL'
 ```
-Получить токен ROLLBAR можно по следующей ссылки https://app.rollbar.com/
-Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
+- `YANDEX_API_KEY` — Получить токен  YANDEX_API_KEY можно получить по следующей ссылке https://developer.tech.yandex.ru/services/3
+- `ROLLBAR_ACCESS_TOKEN` — Получить токен ROLLBAR можно по следующей ссылки https://app.rollbar.com/
+- `DB_URL` —  документация https://github.com/jazzband/dj-database-url
+
+Создайте базy данных и отмигрируйте её следующей командой:
 
 ```sh
 python manage.py migrate
@@ -72,8 +76,6 @@ python manage.py migrate
 ```sh
 python manage.py runserver
 ```
-
-Откройте сайт в браузере по адресу [http://127.0.0.1:8000/](http://127.0.0.1:8000/). Если вы увидели пустую белую страницу, то не пугайтесь, выдохните. Просто фронтенд пока ещё не собран. Переходите к следующему разделу README.
 
 ### Собрать фронтенд
 
@@ -99,7 +101,7 @@ npm --version
 Перейдите в каталог проекта и установите пакеты Node.js:
 
 ```sh
-cd star-burger
+cd star-burger-dvmn
 npm ci --dev
 ```
 
@@ -127,7 +129,7 @@ npm ci --dev
 
 Parcel будет следить за файлами в каталоге `bundles-src`. Сначала он прочитает содержимое `index.js` и узнает какие другие файлы он импортирует. Затем Parcel перейдёт в каждый из этих подключенных файлов и узнает что импортируют они. И так далее, пока не закончатся файлы. В итоге Parcel получит полный список зависимостей. Дальше он соберёт все эти сотни мелких файлов в большие бандлы `bundles/index.js` и `bundles/index.css`. Они полностью самодостаточны, и потому пригодны для запуска в браузере. Именно эти бандлы сервер отправит клиенту.
 
-Теперь если зайти на страницу  [http://127.0.0.1:8000/](http://127.0.0.1:8000/), то вместо пустой страницы вы увидите:
+Зайдите на страницу  [http://127.0.0.1:8000/](http://127.0.0.1:8000/) вы увидите:
 
 ![](https://dvmn.org/filer/canonical/1594651900/687/)
 
@@ -137,23 +139,31 @@ Parcel будет следить за файлами в каталоге `bundle
 
 
 ## Как запустить prod-версию сайта
-
 Собрать фронтенд:
-
-```sh
+```shell
 ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 ```
-
-Настроить бэкенд: создать файл `.env` в каталоге `star_burger/` со следующими настройками:
-
-- `DEBUG` — дебаг-режим. Поставьте `False`.
+Определите допольнительно следующие переменые среды
+```shell
+export SECRET_KEY=django-insecure
+export DEBUG=false
+export ALLOWED_HOSTS=HOST_NAME,HOST_IP,...
+```
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
+- `DEBUG` — дебаг-режим. Поставьте `False`.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 
-## Цели проекта
+## Deploy
+Деплой рекомендуется проводить в prod-версию и в ОС Linux
+Сделайте файл исполняемым если он не является таковым
+```shell
+chmod ugo+x deploy_star_burger.sh
+```
+Запустите файл
+```shell
+./deploy_start_burger.sh
+```
 
-Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
 
-Где используется репозиторий:
 
-- Второй и третий урок [учебного курса Django](https://dvmn.org/modules/django/)
+
