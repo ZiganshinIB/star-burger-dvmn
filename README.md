@@ -54,7 +54,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Определите переменную окружения `SECRET_KEY`, `YANDEX_API_KEY`, `ROLLBAR_ACCESS_TOKEN`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
+Определите переменную окружения `YANDEX_API_KEY`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
 Для dev определите следующие переменные среды
 ```sh
 export YANDEX_API_KEY=YOUR_YANDEX_API_KEY
@@ -132,8 +132,11 @@ Parcel будет следить за файлами в каталоге `bundle
 
 Каталог `bundles` в репозитории особенный — туда Parcel складывает результаты своей работы. Эта директория предназначена исключительно для результатов сборки фронтенда и потому исключёна из репозитория с помощью `.gitignore`.
 
-**Сбросьте кэш браузера <kbd>Ctrl-F5</kbd>.** Браузер при любой возможности старается кэшировать файлы статики: CSS, картинки и js-код. Порой это приводит к странному поведению сайта, когда код уже давно изменился, но браузер этого не замечает и продолжает использовать старую закэшированную версию. В норме Parcel решает эту проблему самостоятельно. Он следит за пересборкой фронтенда и предупреждает JS-код в браузере о необходимости подтянуть свежий код. Но если вдруг что-то у вас идёт не так, то начните ремонт со сброса браузерного кэша, жмите <kbd>Ctrl-F5</kbd>.
-
+### Запустите сайт
+```shell
+python manage.py runserver
+```
+http://127.0.0.1:8000
 
 ## Как запустить prod-версию сайта
 Собрать фронтенд:
@@ -150,10 +153,73 @@ export ALLOWED_HOSTS=HOST_NAME,HOST_IP,...
 - `DEBUG` — дебаг-режим. Поставьте `False`.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 
-## Deploy на Linux
 
-Деплой рекомендуется проводить в prod-версию
+# Дополнительные фичи
+## Rollbar
+Для отслеживание ошибок в коде веб-приложение можете использовать сервис Rollbar
+Чтобы подключить его достаточно
+1. Получить токен https://app.rollbar.com/
+2. Вписать в переменные среды в Linux
+```shell
+export ROLLBAR_ACCESS_TOKEN=YOUR_ROLLBAR_ACCESS_TOKEN
+```
+и в файл `.env` прописать свойства среды для всех ошибок, чтобы указать, где они произошли.
+```shell
+export ROLLBAR_ENVIRONMENT=prod_star_burger
+```
 
+## Сервер СУБД
+СУБД SQLite3 предоставляемая Django по умолчанию медленная рекомендуется подключить более быструю и надежную СУБД:
+- MySQL
+- PostgreSQL ([см. гайд как установить на Ubunto 20.04](https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-20-04))
+Рекомендация
+* Перед добовлением новой схемы выгрузите данные с текущего СУБД:
+```shell
+python manage.py dumpdata > data.json
+```
+Допишите в  файл `.env` следующую переменную среды
+```shell
+export DB_URL=YOUR_DB_URL
+```
+- `DB_URL` и как его прописат [документация](https://github.com/jazzband/dj-database-url)
+Выпольните миграцию:
+```shell
+python manage.py migrate --run-syncdb
+```
+
+Если ранее выгружали данные в `data.json`, то загрузите их в новую СУБД:
+```shell
+python manage.py loaddata data.json
+```
+## Запуск на сервере
+Для запуска серевера лучше использовать [`gunicorn`](https://gunicorn.org/#docs) и Nginx
+[Гайд по установке Nginx](https://www.digitalocean.com/community/tutorials/nginx-ubuntu-18-04-ru)
+Веб приложение теперь запускается следующей командой
+```shell
+gunicorn -b 127.0.0.1:8000
+```
+После запуска сконфигурируте `Nginx` в `/etc/nginx/sites-available/example.com`
+```editorconfig
+server {
+    listen 80;
+    listen [::]:80;
+    location/media/ {
+        alias  /opt/star-burger-dvmn/media/;
+    }
+    location /static/ {
+        alias /opt/star-burger-dvmn/statics/;
+    }
+    location / {
+        include '/etc/nginx/proxy_params';
+        proxy_pass http://127.0.0.1:8000/;
+    }
+}
+```
+Выпольните команду:
+```shell
+ln -s /etc/nginx/sites-available/example.com /etc/nginx/sites-enabled/
+```
+### Deploy (развертывавание)
 Определите переменные среды, команды:
 ```shell
 export ROLLBAR_ACCESS_TOKEN=ROLLBAR_ACCESS_TOKEN
@@ -161,7 +227,7 @@ export ROLLBAR_NAME='Ваше имя'
 ```
 - Эти настройки необходимы что бы ввести запись в Rollbar
 
-Сделайте файл `deploy_star_burger.sh` исполняемым если он не является таковым
+Сделайте файл `deploy_star_burger.sh` исполняемым, если он не является таковым
 ```shell
 chmod ugo+x deploy_star_burger.sh
 ```
@@ -169,12 +235,3 @@ chmod ugo+x deploy_star_burger.sh
 ```shell
 ./deploy_start_burger.sh
 ```
-# Дополнительные фичи
-
-```shell
-export ROLLBAR_ACCESS_TOKEN=YOUR_ROLLBAR_ACCESS_TOKEN
-export DB_URL='DB_URL'
-```
-
-- `ROLLBAR_ACCESS_TOKEN` — Получить токен ROLLBAR можно по следующей ссылки https://app.rollbar.com/
-- `DB_URL` —  документация https://github.com/jazzband/dj-database-url
