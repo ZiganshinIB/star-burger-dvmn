@@ -39,8 +39,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
-]
+] + ['rollbar.contrib.django.middleware.RollbarNotifierMiddleware'] if env.str('ROLLBAR_TOKEN', '') else []
 
 ROOT_URLCONF = 'star_burger.urls'
 
