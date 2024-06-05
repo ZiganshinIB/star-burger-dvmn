@@ -58,12 +58,9 @@ pip install -r requirements.txt
 Для dev определите следующие переменные среды
 ```sh
 export YANDEX_API_KEY=YOUR_YANDEX_API_KEY
-export ROLLBAR_ACCESS_TOKEN=YOUR_ROLLBAR_ACCESS_TOKEN
-export DB_URL='DB_URL'
 ```
 - `YANDEX_API_KEY` — Получить токен  YANDEX_API_KEY можно получить по следующей ссылке https://developer.tech.yandex.ru/services/3
-- `ROLLBAR_ACCESS_TOKEN` — Получить токен ROLLBAR можно по следующей ссылки https://app.rollbar.com/
-- `DB_URL` —  документация https://github.com/jazzband/dj-database-url
+
 
 Создайте базy данных и отмигрируйте её следующей командой:
 
@@ -172,7 +169,12 @@ chmod ugo+x deploy_star_burger.sh
 ```shell
 ./deploy_start_burger.sh
 ```
+# Дополнительные фичи
 
+```shell
+export ROLLBAR_ACCESS_TOKEN=YOUR_ROLLBAR_ACCESS_TOKEN
+export DB_URL='DB_URL'
+```
 
-
-
+- `ROLLBAR_ACCESS_TOKEN` — Получить токен ROLLBAR можно по следующей ссылки https://app.rollbar.com/
+- `DB_URL` —  документация https://github.com/jazzband/dj-database-url

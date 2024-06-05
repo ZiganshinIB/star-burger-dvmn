@@ -1,6 +1,7 @@
 bundles/**
 node_modules/
 media/
+statics/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -54,6 +55,9 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+# The files are created by the IDE
+.vscode
+.idea
 
 # Translations
 *.mo
@@ -116,6 +120,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+
 
 # Spyder project settings
 .spyderproject
