@@ -2,6 +2,7 @@ bundles/**
 node_modules/
 media/
 statics/
+data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
