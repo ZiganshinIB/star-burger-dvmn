@@ -9,6 +9,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# 
+.idea
+
 # C extensions
 *.so
 
@@ -56,9 +59,6 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
-# The files are created by the IDE
-.vscode
-.idea
 
 # Translations
 *.mo
