@@ -1,0 +1,7 @@
+FROM python:3.10
+LABEL authors="ziganshinib"
+COPY . /opt/star-burger-dvmn
+WORKDIR /opt/star-burger-dvmn
+RUN pip install -r requirements.txt
+EXPOSE 8000
+CMD ["python", "manage.py", "runserver"]

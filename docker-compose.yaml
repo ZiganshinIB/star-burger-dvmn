@@ -1,0 +1,40 @@
+
+services:
+  pg_db:
+    image: "postgres:14"
+    environment:
+      POSTGRES_USER: "burgeruser"
+      POSTGRES_PASSWORD: "SecretPasswordhudavhcsdaiudbbvypq"
+      POSTGRES_DB: "burger"
+      PGDATA: "/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U burgeruser -d burger"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - "./data:/var/lib/postgresql/data"
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile_js
+    command: ./node_modules/.bin/parcel watch bundles-src/index.js --dist-dir bundles --public-url='./'
+    volumes:
+        - .:/usr/src/app
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile_js
+    command: python3 ./manage.py runserver 0.0.0.0:8000
+    volumes:
+        - .:/usr/src/app
+    ports:
+      - 8000:8000
+    depends_on:
+      pg_db:
+        condition: service_healthy
+
+
+
+
