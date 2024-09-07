@@ -14,15 +14,7 @@ services:
       retries: 5
     volumes:
       - "./data:/var/lib/postgresql/data"
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: ./node_modules/.bin/parcel watch bundles-src/index.js --dist-dir bundles --public-url='./'
-    volumes:
-        - .:/usr/src/app
-
-  backend:
+  web:
     build:
       context: .
       dockerfile: Dockerfile
