@@ -14,11 +14,15 @@ services:
       retries: 5
     volumes:
       - "./data:/var/lib/postgresql/data"
-  web:
+  frontend:
     build:
       context: .
       dockerfile: Dockerfile
-    command: python3 ./manage.py runserver 0.0.0.0:8000
+    command: ./node_modules/.bin/parcel watch bundles-src/index.js --dist-dir bundles --public-url='./'
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
         - .:/usr/src/app
     ports:
@@ -26,3 +30,4 @@ services:
     depends_on:
       pg_db:
         condition: service_healthy
+    command: ["sh", "-c", "python3 manage.py collectstatic --no-input && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"]
