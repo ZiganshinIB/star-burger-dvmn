@@ -15,7 +15,6 @@
 
 
 # Как Собрать проект на docker compose
-
 Скачайте код:
 ```sh
 git clone https://github.com/devmanorg/star-burger.git
@@ -32,19 +31,43 @@ cd star-burger-dvmn
 ```sh
 docker --version
 ```
+
+## Для dev версии
+Определите переменную окружения `YANDEX_API_KEY`, `SECRET_KEY`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
+```sh
+export YANDEX_API_KEY=YOUR_YANDEX_API_KEY
+export SECRET_KEY=YOUR_SECRET_KEY
+```
+- `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
+- `YANDEX_API_KEY` — Получить токен  YANDEX_API_KEY можно получить по следующей ссылке https://developer.tech.yandex.ru/services/3
+Соберите Docker образ и запустите его в командной строке:
+```sh
+docker compose -f docker-compose.dev.yaml up
+```
+## Для prod версии
+Определите переменную окружения. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
+```
+export YANDEX_API_KEY=YOUR_YANDEX_API_KEY
+export SECRET_KEY=YOUR_SECRET_KEY
+export PG_USER=root
+export PG_PASSWORD=SecretPassword
+export PG_DB=db_name
+export ROLLBAR_ENVIRONMENT=production
+export ROLLBAR_ACCESS_TOKEN=YOUR_ROLLBAR_ACCESS_TOKEN
+export ROLLBAR_NAME=changeme
+```
+- `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
+- `YANDEX_API_KEY` — Получить токен  YANDEX_API_KEY можно получить по следующей ссылке https://developer.tech.yandex.ru/services/3
+- `ROLLBAR_ACCESS_TOKEN` — получить токен можно по ссылке https://rollbar.com/access-tokens/
+- `ROLLBAR_NAME` — название проекта. Например, `changeme`
+- `ROLLBAR_ENVIRONMENT` — название окружения. Например, `production`
+- `PG_USER` — имя пользователя базы данных
+- `PG_PASSWORD` — пароль пользователя базы данных
+- `PG_DB` — название базы данных
 Соберите Docker образ
 ```sh
 docker compose build
 ```
-
-Определите переменную окружения `YANDEX_API_KEY`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
-Для dev определите следующие переменные среды
-```sh
-export YANDEX_API_KEY=YOUR_YANDEX_API_KEY
-```
-- `YANDEX_API_KEY` — Получить токен  YANDEX_API_KEY можно получить по следующей ссылке https://developer.tech.yandex.ru/services/3
-
-
 Запустите сервера:
 
 ```sh

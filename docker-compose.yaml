@@ -1,11 +1,10 @@
-
 services:
   pg_db:
     image: "postgres:14"
     environment:
-      POSTGRES_USER: "burgeruser"
-      POSTGRES_PASSWORD: "SecretPasswordhudavhcsdaiudbbvypq"
-      POSTGRES_DB: "burger"
+      POSTGRES_USER: "${PG_USER:-burgeruser}"
+      POSTGRES_PASSWORD: "${PG_PASSWORD:-SecretPasswordhudavhcsdaiudbbvypq}"
+      POSTGRES_DB: "${PG_DB:-burger}"
       PGDATA: "/var/lib/postgresql/data"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U burgeruser -d burger"]
@@ -18,16 +17,23 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: ./node_modules/.bin/parcel watch bundles-src/index.js --dist-dir bundles --public-url='./'
+    command: ['sh', '-c', 'npm ci && ./node_modules/.bin/parcel watch bundles-src/index.js --dist-dir bundles --public-url="./"']
   backend:
     build:
       context: .
       dockerfile: Dockerfile
     volumes:
         - .:/usr/src/app
+    environment:
+      SECRET_KEY: "${SECRET_KEY:-changeme}"
+      DEBUG: "${DEBUG:-false}"
+      DATABASE_URL: "postgres://${PG_USER}:${PG_PASSWORD}@pg_db:5432/${PG_DB}"
+      ROLLBAR_ENVIRONMENT: "${ROLLBAR_ENVIRONMENT:-production}"
+      ROLLBAR_ACCESS_TOKEN: "${ROLLBAR_ACCESS_TOKEN:-changeme}"
+      ROLLBAR_NAME: "${ROLLBAR_NAME:-changeme}"
     ports:
       - 8000:8000
     depends_on:
       pg_db:
         condition: service_healthy
-    command: ["sh", "-c", "python3 manage.py collectstatic --no-input && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"]
+    command: ["sh", "-c", "pip3 install -r requirements.txt && python3 manage.py collectstatic --no-input && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"]
