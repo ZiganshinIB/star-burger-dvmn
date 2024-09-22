@@ -7,24 +7,25 @@ services:
       POSTGRES_DB: "${PG_DB:-burger}"
       PGDATA: "/var/lib/postgresql/data"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U burgeruser -d burger" ]
+      test: ["CMD-SHELL", "pg_isready -U burgeruser -d burger"]
       interval: 5s
       timeout: 5s
       retries: 5
   web:
     build:
       context: .
-      dockerfile: Dockerfile_dev
-    volumes:
-        - .:/usr/src/app
+      dockerfile: Dockerfile_prod
     environment:
       SECRET_KEY: "${SECRET_KEY:-changeme}"
-      DEBUG: true
+      DEBUG: false
       DATABASE_URL: "postgres://${PG_USER-burgeruser}:${PG_PASSWORD-SecretPasswordhudavhcsdaiudbbvypq}@{PG_HOST-pg_db}:{PG_PORT-5432}/${PG_DB-burger}"
       YANDEX_API_KEY: "${YANDEX_API_KEY:-changeme}"
+      ALLOWED_HOSTS: "${ALLOWED_HOSTS:-*}"
+      ROLLBAR_ENVIRONMENT: "${ROLLBAR_ENVIRONMENT}"
+      ROLLBAR_ACCESS_TOKEN: "${ROLLBAR_ACCESS_TOKEN}"
+      ROLLBAR_NAME: "${ROLLBAR_NAME}"
     ports:
-      - 8000:8000
+      - 80:8000
     depends_on:
       pg_db:
         condition: service_healthy
-    command: ["sh", "-c", "pip3 install -r requirements.txt && python3 manage.py collectstatic --no-input && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"]
