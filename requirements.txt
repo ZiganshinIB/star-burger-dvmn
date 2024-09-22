@@ -13,7 +13,7 @@ geopy==2.4.1
 marshmallow==3.19.0
 phonenumbers==8.13.37
 phonenumberslite==8.13.37
-pillow==9.5.0
+pillow~=10.4
 psycopg2-binary
 requests~=2.31.0
 rollbar~=1.0.0
