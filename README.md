@@ -66,7 +66,7 @@ SECRET_KEY=YOUR_SECRET_KEY
 - `YANDEX_API_KEY` — Получить токен  YANDEX_API_KEY можно получить по следующей ссылке https://developer.tech.yandex.ru/services/3
 Далее собрать образ (image) и запустить образ в контейнере:
 ```bash
-docker build -f Dockerfile.dev -t star-burger:dev .
+docker build -f Dockerfile_dev -t star-burger:dev .
 docker run --name star-burger-dev --env-file .env -p 8000:8000 -it star-burger:dev
 ```
 ### Prod версия
@@ -82,7 +82,7 @@ ROLLBAR_ENVIRONMENT=YOUR_ROLLBAR_ENVIRONMENT
 ```
 Далее собрать образ (image) и запустить образ в контейнере:
 ```bash
-docker build -f Dockerfile.prod -t star-burger:prod .
+docker build -f Dockerfile_prod -t star-burger:prod .
 docker run --name star-burger-prod --env-file .env -p 80:8000 -it star-burger:prod
 ```
 ## Запуск проекта без Docker
