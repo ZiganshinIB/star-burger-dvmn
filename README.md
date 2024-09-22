@@ -14,70 +14,78 @@
 Третий интерфейс — это админка. Преимущественно им пользуются программисты при разработке сайта. Также сюда заходит менеджер, чтобы обновить меню ресторанов Star Burger.
 
 
-# Как Собрать проект на docker compose
-Скачайте код:
-```sh
-git clone https://github.com/devmanorg/star-burger.git
+## Быстрый старт в Docker compose
+
+### Клонируйте проект на свой локальный компьютер
+```shell
+git clone https://github.com/ZiganshinIB/star-burger-dvmn.git
+cd star_burger_dvmn
 ```
+### Создайте файл с переменными окружения `.env` в корневой каталог проекта
+```bash
+SECRET_KEY=django-insecure-0if40nf4nf93n4
+YANDEX_API_KEY=610526f4-26ba-44c5-a498-a82f22d28d35
+PG_USER=db_user
+PG_PASSWORD=secret_password
+PG_DB=db_name
 
-Перейдите в каталог проекта:
-```sh
-cd star-burger-dvmn
-```
-
-Установите Docker
-
-Проверьте, что `docker` установлен и корректно настроен. Запустите его в командной строке:
-```sh
-docker --version
-```
-
-## Для dev версии
-Определите переменную окружения `YANDEX_API_KEY`, `SECRET_KEY`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
-```sh
-export YANDEX_API_KEY=YOUR_YANDEX_API_KEY
-export SECRET_KEY=YOUR_SECRET_KEY
 ```
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `YANDEX_API_KEY` — Получить токен  YANDEX_API_KEY можно получить по следующей ссылке https://developer.tech.yandex.ru/services/3
-Соберите Docker образ и запустите его в командной строке:
-```sh
+- `PG_USER` — имя пользователя базы данных (Опционально)
+- `PG_PASSWORD` — пароль пользователя базы данных (Опционально)
+- `PG_DB` — название базы данных (Опционально)
+### Запустите проект в dev версии
+
+```bash
 docker compose -f docker-compose.dev.yaml up
 ```
-## Для prod версии
-Определите переменную окружения. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
+
+### Запуск проекта в prod версии
+Желательно добавить переменные среды в `.env`
 ```
-export YANDEX_API_KEY=YOUR_YANDEX_API_KEY
-export SECRET_KEY=YOUR_SECRET_KEY
-export PG_USER=root
-export PG_PASSWORD=SecretPassword
-export PG_DB=db_name
-export ROLLBAR_ENVIRONMENT=production
-export ROLLBAR_ACCESS_TOKEN=YOUR_ROLLBAR_ACCESS_TOKEN
-export ROLLBAR_NAME=changeme
+ALLOWED_HOSTS=127.0.0.1,localhost
+ROLLBAR_ACCESS_TOKEN=YOUR_ROLLBAR_ACCESS_TOKEN
+ROLLBAR_NAME=YOUR_ROLLBAR_NAME
+ROLLBAR_ENVIRONMENT=YOUR_ROLLBAR_ENVIRONMENT
+```
+Далее запускаем проект
+```shell
+docker compose -f docker-compose.prod.yaml up
+```
+
+## Быстрый старт в Docker
+### Dev версия
+Необходимо определить переменые среды
+
+```
+YANDEX_API_KEY=YOUR_YANDEX_API_KEY
+SECRET_KEY=YOUR_SECRET_KEY
 ```
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `YANDEX_API_KEY` — Получить токен  YANDEX_API_KEY можно получить по следующей ссылке https://developer.tech.yandex.ru/services/3
-- `ROLLBAR_ACCESS_TOKEN` — получить токен можно по ссылке https://rollbar.com/access-tokens/
-- `ROLLBAR_NAME` — название проекта. Например, `changeme`
-- `ROLLBAR_ENVIRONMENT` — название окружения. Например, `production`
-- `PG_USER` — имя пользователя базы данных
-- `PG_PASSWORD` — пароль пользователя базы данных
-- `PG_DB` — название базы данных
-Соберите Docker образ
-```sh
-docker compose build
+Далее собрать образ (image) и запустить образ в контейнере:
+```bash
+docker build -f Dockerfile.dev -t star-burger:dev .
+docker run --name star-burger-dev --env-file .env -p 8000:8000 -it star-burger:dev
 ```
-Запустите сервера:
+### Prod версия
+Необходимо определить переменые среды
 
-```sh
-docker compose up
 ```
-# Собрать проект в ручную
-## Как запустить dev-версию сайта
-
-Для запуска сайта нужно запустить **одновременно** бэкенд и фронтенд, в двух терминалах.
-
+YANDEX_API_KEY=YOUR_YANDEX_API_KEY
+SECRET_KEY=YOUR_SECRET_KEY
+ALLOWED_HOSTS=127.0.0.1,localhost
+ROLLBAR_ACCESS_TOKEN=YOUR_ROLLBAR_ACCESS_TOKEN
+ROLLBAR_NAME=YOUR_ROLLBAR_NAME
+ROLLBAR_ENVIRONMENT=YOUR_ROLLBAR_ENVIRONMENT
+```
+Далее собрать образ (image) и запустить образ в контейнере:
+```bash
+docker build -f Dockerfile.prod -t star-burger:prod .
+docker run --name star-burger-prod --env-file .env -p 80:8000 -it star-burger:prod
+```
+## Запуск проекта без Docker
 ### Как собрать бэкенд
 
 Скачайте код:
